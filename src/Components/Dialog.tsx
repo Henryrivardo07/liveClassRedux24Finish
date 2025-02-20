@@ -12,100 +12,100 @@ import {
 import styles from '../Components/Styles/Dialog.module.scss';
 import Button from '@/Components/ui/Button';
 
+// Fungsi untuk mendapatkan ikon berdasarkan jenis dialog (variant)
 const getIcon = (variant: 'success' | 'info' | 'danger') => {
   switch (variant) {
     case 'danger':
-      return <FaExclamationCircle color='red' size={48} />;
+      return <FaExclamationCircle color='red' size={48} />; // Ikon peringatan merah
     case 'success':
-      return <FaCheckCircle color='green' size={48} />;
+      return <FaCheckCircle color='green' size={48} />; // Ikon sukses hijau
     case 'info':
-      return <FaInfoCircle color='blue' size={48} />;
+      return <FaInfoCircle color='blue' size={48} />; // Ikon informasi biru
     default:
-      throw new Error(`Unhandled type: ${variant}`);
+      throw new Error(`Unhandled type: ${variant}`); // Jika ada tipe yang tidak dikenal, lempar error
   }
 };
 
+// Komponen utama Dialog
 export const Dialog: React.FC = () => {
+  // Mengambil state dialog dari Redux
   const {
-    isOpen,
-    variant,
-    title,
-    message,
-    primaryButtonTitle,
-    secondaryButtonTitle,
-    isSubmitting,
+    isOpen, // Apakah dialog terbuka atau tidak
+    variant, // Jenis dialog (success, info, danger)
+    title, // Judul dialog
+    message, // Pesan dalam dialog
+    primaryButtonTitle, // Teks tombol utama
+    secondaryButtonTitle, // Teks tombol sekunder
+    isSubmitting, // Status loading saat tombol utama ditekan
   } = useSelector((state: RootState) => state.dialog);
-  const dispatch = useDispatch();
+
+  const dispatch = useDispatch(); // Untuk mengirim aksi ke Redux Store
 
   // Fungsi untuk menutup dialog
   const handleCloseDialog = useCallback(() => {
-    dispatch(closeDialog());
+    dispatch(closeDialog()); // Dispatch aksi untuk menutup dialog
   }, [dispatch]);
 
-  // Fungsi untuk menangani klik pada tombol utama
+  // Fungsi untuk menangani klik tombol utama
   const handleOnClickSubmitButton = useCallback(() => {
-    if (!primaryButtonTitle) return;
-    dispatch(setSubmitting(true));
+    if (!primaryButtonTitle) return; // Jika tombol utama tidak ada, tidak melakukan apa-apa
 
-    // Aksi konfirmasi dan logika untuk API call atau lainnya
+    dispatch(setSubmitting(true)); // Set state isSubmitting menjadi true (loading)
+
+    // Simulasi API call atau proses lainnya
     setTimeout(() => {
       dispatch(
         showToast({
-          variant: 'success',
-          message: 'Action confirmed successfully!',
+          variant: 'success', // Tampilkan toast sukses
+          message: 'Action confirmed successfully!', // Pesan toast
         })
       );
-      dispatch(closeDialog());
-    }, 2000); // Simulate an API request
+      dispatch(closeDialog()); // Tutup dialog setelah aksi selesai
+    }, 2000); // Simulasi delay 2 detik
   }, [dispatch, primaryButtonTitle]);
 
+  // Jika dialog tidak terbuka, return null agar tidak dirender
   if (!isOpen) return null;
 
   return createPortal(
     <div className={styles.dialogWrapper}>
       <div className={styles.dialog}>
         <div className={styles.body}>
+          {/* Bagian ikon sesuai dengan variant */}
           <div className={styles.variantIcon}>
             <div className={styles.icon}>{getIcon(variant)}</div>
           </div>
+
+          {/* Bagian konten dialog */}
           <div className={styles.content}>
-            <p className={styles.title}>{title}</p>
-            <p className={styles.description}>{message}</p>
+            <p className={styles.title}>{title}</p> {/* Judul dialog */}
+            <p className={styles.description}>{message}</p> {/* Pesan dialog */}
           </div>
         </div>
+
+        {/* Footer dialog dengan tombol aksi */}
         <div className={styles.footer}>
+          {/* Tombol utama, hanya ditampilkan jika variant bukan 'success' */}
           {variant !== 'success' && primaryButtonTitle && (
             <Button
               color={variant === 'danger' ? 'danger' : 'primary'}
-              isLoading={isSubmitting}
-              onClick={handleOnClickSubmitButton}
+              isLoading={isSubmitting} // Tampilkan loading jika isSubmitting true
+              onClick={handleOnClickSubmitButton} // Aksi ketika tombol utama ditekan
             >
               {primaryButtonTitle}
             </Button>
           )}
+          {/* Tombol sekunder untuk menutup dialog */}
           <Button
             color='secondary'
-            disabled={isSubmitting}
-            onClick={handleCloseDialog}
+            disabled={isSubmitting} // Nonaktifkan jika sedang loading
+            onClick={handleCloseDialog} // Aksi ketika tombol sekunder ditekan
           >
             {secondaryButtonTitle}
           </Button>
         </div>
       </div>
     </div>,
-    document.getElementById('portal') as HTMLElement
+    document.getElementById('portal') as HTMLElement // Menggunakan portal agar dialog ditampilkan di luar root utama
   );
 };
-
-/*
-Penjelasan Tambahan:
-DialogProps mendefinisikan properti yang diperlukan oleh komponen Dialog, termasuk tipe dialog, judul, pesan, tombol, dan fungsi-fungsi untuk menangani klik pada tombol.
-
-getIcon adalah fungsi pembantu yang mengembalikan ikon sesuai dengan tipe dialog (danger, success, atau info). Ikon ini akan digunakan untuk menggambarkan jenis pesan dalam dialog.
-
-createPortal digunakan untuk merender dialog ke dalam elemen DOM yang terpisah, biasanya ke dalam elemen dengan id portal yang ditempatkan di luar root DOM aplikasi. Ini memastikan bahwa dialog bisa ditampilkan di atas elemen lainnya dan tidak terpengaruh oleh struktur DOM yang ada.
-
-Button adalah komponen yang digunakan untuk tombol dalam dialog. Tombol utama dan sekunder memiliki aksi yang berbeda tergantung pada apakah pengguna memilih untuk mengonfirmasi atau membatalkan.
-
-useCallback digunakan untuk membungkus fungsi yang menangani klik tombol utama agar fungsi tersebut tidak diciptakan ulang setiap kali komponen dirender ulang. Ini dapat meningkatkan kinerja aplikasi dengan mencegah render yang tidak perlu.
-*/
