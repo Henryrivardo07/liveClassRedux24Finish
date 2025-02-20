@@ -1,0 +1,43 @@
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  margin: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  animation: slide-in 0.3s ease-out;
+}
+
+.icon {
+  margin-right: 10px;
+}
+
+.message {
+  flex: 1;
+}
+
+.success {
+  background-color: #e7f9e7;
+  color: #28a745;
+}
+
+.error {
+  background-color: #f8d7da;
+  color: #dc3545;
+}
+
+.info {
+  background-color: #cce5ff;
+  color: #007bff;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
